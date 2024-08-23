@@ -28,12 +28,20 @@ import java.util.stream.StreamSupport;
 @SuppressWarnings("unused")
 public class PropertyLogging {
 
+	protected static final String APP_URI_PATTERN = "http{}://{}:{}";
+
 	@Value("#{T(org.slf4j.event.Level).valueOf('${logging.level.eu.nerdfactor.springutils.PropertyLogging:OFF}')}")
-	private Level loggingLevel;
+	protected Level loggingLevel;
 
-	private static final String APP_URI_PATTERN = "http{}://{}:{}";
+	protected final List<String> maskedProperties;
 
-	private final List<String> maskedProperties = Arrays.asList("credentials", "pass", "token", "secret", "key");
+	public PropertyLogging() {
+		this.maskedProperties = Arrays.asList("credentials", "pass", "token", "secret", "key");
+	}
+
+	public PropertyLogging(List<String> maskedProperties) {
+		this.maskedProperties = maskedProperties;
+	}
 
 	@SuppressWarnings("rawtypes")
 	@EventListener
