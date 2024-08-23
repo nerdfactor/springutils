@@ -5,8 +5,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.nerdfactor</groupId>
-	<artifactId>spring-utils</artifactId>
-	<version>0.4.0</version>
+	<artifactId>springutils</artifactId>
+	<version>0.5.0</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -64,10 +64,5 @@
 			<name>GitHub Packages</name>
 			<url>https://maven.pkg.github.com/nerdfactor/springutils</url>
 		</repository>
-		<!--<repository>
-			<id>dev</id>
-			<name>Local repository</name>
-			<url>file://${user.home}/.m2/repository</url>
-		</repository>-->
 	</distributionManagement>
 </project>
