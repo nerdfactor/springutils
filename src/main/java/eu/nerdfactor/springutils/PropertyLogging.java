@@ -26,6 +26,10 @@ import java.util.stream.StreamSupport;
 @SuppressWarnings("unused")
 public class PropertyLogging {
 
+	private static final String APP_URI_PATTERN = "http{}://{}:{}";
+
+	private final List<String> maskedProperties = Arrays.asList("credentials", "pass", "token", "secret", "key");
+
 	@SuppressWarnings("rawtypes")
 	@EventListener
 	public void handleContextRefresh(ContextRefreshedEvent event) throws UnknownHostException {
@@ -35,7 +39,11 @@ public class PropertyLogging {
 		log.info("Active profiles: {}", Arrays.toString(env.getActiveProfiles()));
 		final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
 		List<String> props = StreamSupport.stream(sources.spliterator(), false)
-				.filter(ps -> ps instanceof EnumerablePropertySource && (ps.getName().toLowerCase().contains(".properties") || ps.getName().toLowerCase().contains(".yaml")))
+				.filter(ps -> ps instanceof EnumerablePropertySource && (
+						ps.getName().toLowerCase().contains(".properties")
+								|| ps.getName().toLowerCase().contains(".yaml")
+								|| ps.getName().toLowerCase().contains(".yml")
+				))
 				.map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
 				.flatMap(Arrays::stream)
 				.distinct().toList();
@@ -43,7 +51,7 @@ public class PropertyLogging {
 			if (!prop.toLowerCase().startsWith("//") && !prop.toLowerCase().startsWith("#")) {
 				useHttps = useHttps || prop.toLowerCase().contains("server.ssl");
 				String value = env.getProperty(prop);
-				if (value != null && (prop.toLowerCase().contains("credentials") || prop.toLowerCase().contains("pass") || prop.toLowerCase().contains("token"))) {
+				if (value != null && this.maskedProperties.stream().anyMatch(word -> prop.toLowerCase().contains(word))) {
 					value = "************";
 				}
 				log.info("{}: {}", prop, value);
@@ -51,9 +59,9 @@ public class PropertyLogging {
 		}
 		log.info("===========================================");
 		String port = env.getProperty("local.server.port");
-		log.info("http" + ((useHttps) ? "s" : "") + "://" + InetAddress.getLocalHost().getHostName() + ":" + port);
-		log.info("http" + ((useHttps) ? "s" : "") + "://" + InetAddress.getLocalHost().getHostAddress() + ":" + port);
-		log.info("http" + ((useHttps) ? "s" : "") + "://" + InetAddress.getLoopbackAddress().getHostName() + ":" + port);
+		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostName(), port);
+		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostAddress(), port);
+		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLoopbackAddress().getHostName(), port);
 		log.info("===========================================");
 	}
 }
