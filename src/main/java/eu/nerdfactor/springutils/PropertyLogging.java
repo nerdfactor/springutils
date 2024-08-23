@@ -2,13 +2,14 @@ package eu.nerdfactor.springutils;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,12 +20,16 @@ import java.util.stream.StreamSupport;
 /**
  * Log used properties as part of the application startup.
  *
- * @see <a href="https://gist.github.com/sandor-nemeth/f6d2899b714e017266cb9cce66bc719d" />
+ * @see <a
+ * href="https://gist.github.com/sandor-nemeth/f6d2899b714e017266cb9cce66bc719d"
+ * />
  */
 @Slf4j
-@Component
 @SuppressWarnings("unused")
 public class PropertyLogging {
+
+	@Value("#{T(org.slf4j.event.Level).valueOf('${logging.level.eu.nerdfactor.springutils.PropertyLogging:OFF}')}")
+	private Level loggingLevel;
 
 	private static final String APP_URI_PATTERN = "http{}://{}:{}";
 
@@ -35,8 +40,8 @@ public class PropertyLogging {
 	public void handleContextRefresh(ContextRefreshedEvent event) throws UnknownHostException {
 		boolean useHttps = false;
 		final Environment env = event.getApplicationContext().getEnvironment();
-		log.info("============== Configuration ==============");
-		log.info("Active profiles: {}", Arrays.toString(env.getActiveProfiles()));
+		log.atLevel(this.loggingLevel).log("============== Configuration ==============");
+		log.atLevel(this.loggingLevel).log("Active profiles: {}", Arrays.toString(env.getActiveProfiles()));
 		final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
 		List<String> props = StreamSupport.stream(sources.spliterator(), false)
 				.filter(ps -> ps instanceof EnumerablePropertySource && (
@@ -54,14 +59,15 @@ public class PropertyLogging {
 				if (value != null && this.maskedProperties.stream().anyMatch(word -> prop.toLowerCase().contains(word))) {
 					value = "************";
 				}
-				log.info("{}: {}", prop, value);
+				log.atLevel(this.loggingLevel).log("{}: {}", prop, value);
 			}
 		}
-		log.info("===========================================");
+
+		log.atLevel(this.loggingLevel).log("===========================================");
 		String port = env.getProperty("local.server.port");
-		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostName(), port);
-		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostAddress(), port);
-		log.info(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLoopbackAddress().getHostName(), port);
-		log.info("===========================================");
+		log.atLevel(this.loggingLevel).log(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostName(), port);
+		log.atLevel(this.loggingLevel).log(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLocalHost().getHostName(), port);
+		log.atLevel(this.loggingLevel).log(APP_URI_PATTERN, useHttps ? "s" : "", InetAddress.getLoopbackAddress().getHostName(), port);
+		log.atLevel(this.loggingLevel).log("===========================================");
 	}
 }
