@@ -33,3 +33,28 @@ logging:
   level:
     eu.nerdfactor.springutils.PropertyLogging: INFO
 ```
+
+
+## Installation
+
+```xml
+
+<dependency>
+    <groupId>com.github.nerdfactor</groupId>
+	<artifactId>springutils</artifactId>
+    <version>0.5.0</version>
+</dependency>
+```
+
+The library is published using jitpack.io registry. Add jitpack to the
+projects repositories.
+
+```xml
+
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
