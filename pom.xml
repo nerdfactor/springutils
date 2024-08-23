@@ -60,9 +60,14 @@
 	</build>
 	<distributionManagement>
 		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/nerdfactor/generated-rest</url>
+		</repository>
+		<!--<repository>
 			<id>dev</id>
 			<name>Local repository</name>
 			<url>file://${user.home}/.m2/repository</url>
-		</repository>
+		</repository>-->
 	</distributionManagement>
 </project>
